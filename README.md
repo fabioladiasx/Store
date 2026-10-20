@@ -1,196 +1,190 @@
-# Product and Category Management API
+# Inventory Dashboard — Burgundy Edition
 
-A REST API built with **FastAPI** and **SQLite** to manage products and categories.
+A simple inventory management project with a **FastAPI backend** and a responsive HTML frontend. The dashboard lets you manage products and categories from one interface, with a clean, minimalist design in burgundy, warm ivory, white, and soft blush.
 
 ## Features
 
-- Create, read, update, and delete products (CRUD).
-- Create, read, update, and delete categories.
-- Store data using an SQLite database.
-- Validate request data using Pydantic schemas.
-- Enable CORS for frontend integration.
+### Frontend
 
-## Technologies
+- Minimalist, responsive dashboard layout
+- Burgundy accent palette:
+  - Burgundy: `#762C46`
+  - Deep wine / hover: `#552033`
+  - Soft blush: `#F3E7EC`
+  - Warm ivory background: `#FBFAF7`
+- Product management form for creating and editing products
+- Product table with name search and category filtering
+- Category management form and category table
+- Product and category edit and delete actions
+- Stock indicators that remain green when inventory is available and red when stock is zero
+- Refresh button to reload data from the API
+- Tailwind CSS loaded from its CDN
 
-- Python
+### Backend
+
+- FastAPI API
+- SQLite database integration through `database.py`
+- Request schemas imported from `schemas.py`
+- Product and category CRUD operations
+- CORS middleware for frontend-to-backend requests
+
+> **Note:** The frontend expects the API to be running at `http://127.0.0.1:8000`. The backend must implement the endpoints listed below for the dashboard features to work.
+
+## Requirements
+
+- Python 3.9 or newer
 - FastAPI
-- SQLite
 - Uvicorn
-- Pydantic
+- SQLite (included with standard Python installations)
+- A modern web browser
+- Internet access when using the Tailwind CSS CDN
 
 ## Project Structure
 
+Your project may be organized like this:
+
 ```text
-project-folder/
-├── main.py
-├── database.py
-├── schemas.py
-├── store.db
+inventory-dashboard/
+├── main.py          # FastAPI application
+├── database.py      # SQLite connection and table setup
+├── schemas.py       # Pydantic request models
+├── index.html       # Burgundy dashboard frontend
+├── store.db         # SQLite database (created by the app, if configured)
 └── README.md
 ```
 
-*Note: `store.db` is an example filename; check `database.py` for the actual database location and name.*
+Use the filenames in your own project if they differ from this example.
 
-## Installation and Setup
+## Run the Backend
 
-### 1. Open the project
+1. Open the project folder in Visual Studio Code or a terminal.
+2. (Recommended) Create a virtual environment:
 
-Open your project folder in Visual Studio Code and open a new terminal.
+   ```bash
+   python -m venv .venv
+   ```
 
-### 2. Create a virtual environment
+3. Activate it.
 
-**macOS/Linux:**
+   **macOS/Linux:**
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
+   ```bash
+   source .venv/bin/activate
+   ```
+
+   **Windows:**
+
+   ```bash
+   .venv\Scripts\activate
+   ```
+
+4. Install the dependencies:
+
+   ```bash
+   pip install fastapi uvicorn
+   ```
+
+5. Start the server. If your FastAPI file is named `main.py`, run:
+
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+6. Open the API documentation:
+
+   - Swagger UI: <http://127.0.0.1:8000/docs>
+   - ReDoc: <http://127.0.0.1:8000/redoc>
+
+If your Python file has a different name, replace `main` with that filename without `.py`.
+
+## Open the Frontend
+
+1. Save the latest burgundy HTML as `index.html` in your frontend/project folder.
+2. Make sure the backend is running at `http://127.0.0.1:8000`.
+3. Open `index.html` in your browser.
+4. Use **Refresh All Data** to load products and categories.
+
+The HTML frontend uses this API base URL:
+
+```javascript
+const API_BASE = "http://127.0.0.1:8000";
 ```
 
-**Windows:**
+If you change the backend address or port, update `API_BASE` in the HTML file as well.
 
-```powershell
-py -m venv .venv
-.venv\Scripts\Activate.ps1
+## API Endpoints Used by the Frontend
+
+The frontend sends requests to these routes:
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/categories` | Load all categories |
+| `POST` | `/categories` | Create a category |
+| `PUT` | `/categories/{category_id}` | Update a category |
+| `DELETE` | `/categories/{category_id}` | Delete a category |
+| `GET` | `/products` | Load all products |
+| `POST` | `/products` | Create a product |
+| `PUT` | `/products/{product_id}` | Update a product |
+| `DELETE` | `/products/{product_id}` | Delete a product |
+
+The frontend expects category objects to include `id` and `name`. Product objects are expected to include `id`, `name`, `description`, `price`, `stock`, and `category_id`.
+
+### Example product request body
+
+```json
+{
+  "name": "Wireless Mouse",
+  "description": "Wireless ergonomic mouse",
+  "price": 29.99,
+  "stock": 100,
+  "category_id": 1
+}
 ```
 
-### 3. Install dependencies
+### Example category request body
 
-```bash
-python -m pip install fastapi uvicorn
+```json
+{
+  "name": "Electronics"
+}
 ```
 
-### 4. Start the API
+The selected `category_id` must correspond to a category that exists in the database.
 
-If your application file is named `main.py`, run:
-
-```bash
-uvicorn main:app --reload
-```
-
-Replace `main` with your Python filename if it is different.
-
-### 5. Open the API documentation
-
-- API root: http://127.0.0.1:8000/
-- Interactive documentation: http://127.0.0.1:8000/docs
-- Alternative documentation: http://127.0.0.1:8000/redoc
-
-## API Endpoints
+## How to Use the Dashboard
 
 ### Products
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/products` | Create a product |
-| GET | `/products` | Get all products |
-| GET | `/products/{product_id}` | Get a product by ID |
-| PUT | `/products/{product_id}` | Update a product |
-| DELETE | `/products/{product_id}` | Delete a product |
+1. Open the **Products Management** tab.
+2. Enter the product name and description.
+3. Enter its price and stock quantity.
+4. Choose a category.
+5. Select **Save Product**.
+6. Use the search field or category filter to find products.
+7. Select **Edit** to load a product into the form, or **Delete** to remove it after confirming.
 
 ### Categories
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/categories` | Create a category |
-| GET | `/categories` | Get all categories |
-| GET | `/categories/{category_id}` | Get a category by ID |
-| PUT | `/categories/{category_id}` | Update a category |
-| DELETE | `/categories/{category_id}` | Delete a category |
+1. Open the **Category Management** tab.
+2. Enter a category name.
+3. Select **Save Category**.
+4. Use **Edit** to rename a category or **Delete** to remove it.
 
-## Example Requests
+### Troubleshooting
 
-### Create a category
+- **Products or categories do not load:** Check that FastAPI is running and that the API URL is `http://127.0.0.1:8000`.
+- **Browser reports a CORS error:** Check the backend's CORS middleware configuration and ensure it allows the frontend origin during development.
+- **Product cannot be saved:** Confirm all required fields are filled in and the selected category exists.
+- **Styles do not appear:** The frontend loads Tailwind CSS from a CDN, so check your internet connection.
+- **A route returns 404 or 405:** Compare your FastAPI route paths and HTTP methods with the endpoint table above.
 
-**POST `/categories`**
+## Development Notes
 
-```json
-{
-  "name": "Produce"
-}
-```
+- The burgundy styling is contained in the HTML `<style>` block and uses CSS custom properties for its color palette.
+- Product and category data are retrieved from the backend; the HTML file does not replace the database.
+- For production, restrict CORS to trusted frontend origins instead of allowing every origin.
+- Confirm that database tables are created by your backend's table-initialization code before using the dashboard.
 
-### Create a product
+## License
 
-**POST `/products`**
-
-Create the category first, then use its actual ID for `category_id`.
-
-```json
-{
-  "name": "Apples",
-  "description": "Fresh red apples",
-  "price": 3.99,
-  "stock": 20,
-  "category_id": 1
-}
-```
-
-### Update a product
-
-**PUT `/products/1`**
-
-```json
-{
-  "name": "Green Apples",
-  "description": "Fresh green apples",
-  "price": 4.49,
-  "stock": 15,
-  "category_id": 1
-}
-```
-
-The product update endpoint requires the fields defined by `ProductCreate` in your current code.
-
-### Update a category
-
-**PUT `/categories/1`**
-
-```json
-{
-  "name": "Fresh Produce"
-}
-```
-
-### Delete a product
-
-**DELETE `/products/1`**
-
-Replace `1` with the ID of the product to delete.
-
-## Database
-
-The application uses SQLite through the `get_connection()` and `create_tables()` functions in `database.py`.
-
-The expected tables are:
-
-**Categories**
-- `id`
-- `name`
-
-**Products**
-- `id`
-- `name`
-- `description`
-- `price`
-- `stock`
-- `category_id`
-
-The `category_id` field associates each product with a category.
-
-## Troubleshooting
-
-- Make sure the FastAPI server is running.
-- Check that the database tables exist.
-- Create a category before creating a product that references it.
-- Ensure request bodies match the Pydantic schemas in `schemas.py`.
-- Use `/docs` to test endpoints.
-
-**Important:** Fix the category update endpoint in your Python code. The SQL should use `UPDATE categories SET name = ? WHERE id = ?`, without a trailing comma. Also change the route parameter to `/categories/{category_id}` to match the function argument.
-
-## Future Improvements
-
-- Add consistent HTTP error responses.
-- Improve database connection handling.
-- Add automated tests.
-- Build a frontend for managing products and categories.
-- Restrict CORS origins before deploying publicly.
+This project is for learning and practice. Add a license if you plan to distribute it publicly.

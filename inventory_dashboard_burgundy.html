@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Inventory & Category Manager</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --ink: #202a35;
+      --muted: #74808c;
+      --line: #e8e8e3;
+      --paper: #fbfaf7;
+      --white: #ffffff;
+      --accent: #762C46;
+      --accent-dark: #552033;
+      --accent-soft: #F3E7EC;
+      --rose: #a65e61;
+      --rose-soft: #f8eded;
+      --gold: #b58a4b;
+    }
+    body { background: var(--paper) !important; color: var(--ink) !important; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important; letter-spacing: -.01em; }
+    .max-w-7xl { max-width: 1440px !important; }
+    header { border-color: var(--line) !important; padding-bottom: 1.5rem !important; }
+    h1 { letter-spacing: -.045em !important; font-weight: 650 !important; }
+    h2 { letter-spacing: -.025em !important; }
+    header p { margin-top: .45rem; }
+    .bg-white { background: var(--white) !important; }
+    .rounded-xl { border-radius: 18px !important; }
+    .rounded-lg { border-radius: 10px !important; }
+    .shadow-sm { box-shadow: 0 8px 30px rgba(32,42,53,.045) !important; }
+    .border, .border-b { border-color: var(--line) !important; }
+    input, textarea, select { background-color: #fff !important; border-color: #dedfda !important; color: var(--ink) !important; transition: border-color .18s ease, box-shadow .18s ease; }
+    input::placeholder, textarea::placeholder { color: #a1a8ad !important; }
+    input:focus, textarea:focus, select:focus { border-color: #A66D83 !important; box-shadow: 0 0 0 3px rgba(118,44,70,.12) !important; outline: none !important; }
+    label { letter-spacing: .09em; font-size: 10px !important; }
+    button { transition: all .18s ease !important; cursor: pointer; }
+    #product-submit-btn, #category-submit-btn { background: var(--accent) !important; border-radius: 10px !important; box-shadow: none !important; }
+    #product-submit-btn:hover, #category-submit-btn:hover { background: var(--accent-dark) !important; transform: translateY(-1px); }
+    #product-cancel-btn, #category-cancel-btn { border-radius: 10px !important; }
+    #tab-products-btn, #tab-categories-btn { padding: .85rem 1.1rem !important; font-size: .9rem; }
+    .text-indigo-600 { color: var(--accent) !important; }
+    .border-indigo-600 { border-color: var(--accent) !important; }
+    .bg-indigo-600 { background: var(--accent) !important; }
+    .hover\:bg-indigo-700:hover { background: var(--accent-dark) !important; }
+    .focus\:ring-indigo-500:focus { --tw-ring-color: rgba(118,44,70,.22) !important; }
+    table { border-spacing: 0; }
+    thead tr { border-color: var(--line) !important; }
+    th { font-size: 10px !important; letter-spacing: .1em; font-weight: 650 !important; color: #8a9297 !important; padding-top: .9rem !important; padding-bottom: .9rem !important; }
+    td { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+    tbody tr { transition: background .15s ease; }
+    .bg-blue-50 { background: var(--accent-soft) !important; }
+    .text-blue-700 { color: var(--accent-dark) !important; }
+    .border-blue-200 { border-color: #E6CFD8 !important; }
+    .bg-green-100 { background: #e7f2e9 !important; }
+    .text-green-700 { color: #38664a !important; }
+    .bg-red-100 { background: var(--rose-soft) !important; }
+    .text-red-700, .text-red-500 { color: var(--rose) !important; }
+    .hover\:text-red-700:hover { color: #874548 !important; }
+    .text-gray-900, .text-gray-800 { color: var(--ink) !important; }
+    .text-gray-500, .text-gray-400 { color: var(--muted) !important; }
+    #tab-products-btn, #tab-categories-btn { border-radius: 9px 9px 0 0; }
+    #tab-products-btn:hover, #tab-categories-btn:hover { color: var(--accent) !important; }
+    header button { background: #f0f0eb !important; border-radius: 10px !important; color: #46515a !important; }
+    header button:hover { background: #e7e8e1 !important; }
+    @media (max-width: 640px) {
+      .max-w-7xl { padding: 1rem !important; }
+      header { align-items: flex-start !important; gap: 1rem; flex-direction: column; }
+      h1 { font-size: 1.8rem !important; }
+      #tab-products-btn, #tab-categories-btn { padding: .75rem .6rem !important; font-size: .8rem; }
+      section { gap: 1rem !important; }
+      .p-6 { padding: 1.1rem !important; }
+    }
+  </style>
+
+
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+
+
+  <div class="max-w-7xl mx-auto p-6">
+
+    <!-- Header -->
+
+    <header class="flex justify-between items-center mb-8 border-b pb-4">
+
+      <div>
+
+        <h1 class="text-3xl font-bold text-gray-900">Inventory Dashboard</h1>
+
+        <p class="text-sm text-gray-500">Connected to <span class="font-mono text-indigo-600">http://127.0.0.1:8000</span></p>
+
+      </div>
+
+      <button onclick="initApp()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition">
+
+        🔄 Refresh All Data
+
+      </button>
+
+    </header>
+
+
+
+    <!-- Navigation Tabs -->
+
+    <div class="flex space-x-2 border-b mb-6">
+
+      <button id="tab-products-btn" onclick="switchTab('products')" class="px-4 py-2 border-b-2 border-indigo-600 font-semibold text-indigo-600">
+
+        📦 Products Management
+
+      </button>
+
+      <button id="tab-categories-btn" onclick="switchTab('categories')" class="px-4 py-2 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700">
+
+        🏷️ Category Management
+
+      </button>
+
+    </div>
+
+
+
+    <!-- PRODUCTS SECTION -->
+
+    <section id="products-section" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Product Form -->
+
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
+
+        <h2 id="product-form-title" class="text-xl font-semibold mb-4 text-gray-800">Add New Product</h2>
+
+        <form id="product-form" onsubmit="handleProductSubmit(event)" class="space-y-4">
+
+          <input type="hidden" id="product-id" />
+
+
+
+          <div>
+
+            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Name</label>
+
+            <input type="text" id="product-name" required class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. Wireless Mouse" />
+
+          </div>
+
+
+
+          <div>
+
+            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Description</label>
+
+            <textarea id="product-description" required rows="3" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Product details..."></textarea>
+
+          </div>
+
+
+
+          <div class="grid grid-cols-2 gap-3">
+
+            <div>
+
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Price ($)</label>
+
+              <input type="number" step="0.01" id="product-price" required class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="29.99" />
+
+            </div>
+
+            <div>
+
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Stock</label>
+
+              <input type="number" id="product-stock" required class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="100" />
+
+            </div>
+
+          </div>
+
+
+
+          <div>
+
+            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Category</label>
+
+            <select id="product-category" required class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+
+              <option value="" disabled selected>Select a Category...</option>
+
+            </select>
+
+          </div>
+
+
+
+          <div class="flex gap-2 pt-2">
+
+            <button type="submit" id="product-submit-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition shadow-sm">
+
+              Save Product
+
+            </button>
+
+            <button type="button" id="product-cancel-btn" onclick="resetProductForm()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2.5 rounded-lg transition">
+
+              Cancel
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+
+
+      <!-- Product List Table -->
+
+      <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+
+          <h2 class="text-xl font-semibold text-gray-800">Product List</h2>
+
+          <!-- SEARCH AND FILTER CONTROLS -->
+
+          <div class="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto">
+
+            <!-- Name Search Input -->
+
+            <div class="relative flex-1 sm:w-48">
+
+              <input type="text" id="search-input" oninput="applyFilters()" placeholder="Search name..." class="w-full border border-gray-300 rounded-lg pl-8 pr-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+
+              <span class="absolute left-2.5 top-2 text-gray-400 text-xs">🔍</span>
+
+            </div>
+
+
+
+            <!-- Category Filter Dropdown -->
+
+            <select id="filter-category" onchange="applyFilters()" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+
+              <option value="ALL">All Categories</option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="overflow-x-auto">
+
+          <table class="w-full text-left border-collapse">
+
+            <thead>
+
+              <tr class="border-b text-xs uppercase text-gray-400">
+
+                <th class="py-3 px-2">ID</th>
+
+                <th class="py-3 px-2">Product</th>
+
+                <th class="py-3 px-2">Category</th>
+
+                <th class="py-3 px-2">Price</th>
+
+                <th class="py-3 px-2">Stock</th>
+
+                <th class="py-3 px-2 text-right">Actions</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="product-list" class="divide-y divide-gray-100 text-sm">
+
+              <tr>
+
+                <td colspan="6" class="py-6 text-center text-gray-400">Loading products...</td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- CATEGORIES SECTION -->
+
+    <section id="categories-section" class="grid grid-cols-1 lg:grid-cols-3 gap-8 hidden">
+
+      <!-- Category Form -->
+
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
+
+        <h2 id="category-form-title" class="text-xl font-semibold mb-4 text-gray-800">Add New Category</h2>
+
+        <form id="category-form" onsubmit="handleCategorySubmit(event)" class="space-y-4">
+
+          <input type="hidden" id="category-id" />
+
+
+
+          <div>
+
+            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Category Name</label>
+
+            <input type="text" id="category-name" required class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. Electronics" />
+
+          </div>
+
+
+
+          <div class="flex gap-2 pt-2">
+
+            <button type="submit" id="category-submit-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition shadow-sm">
+
+              Save Category
+
+            </button>
+
+            <button type="button" id="category-cancel-btn" onclick="resetCategoryForm()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2.5 rounded-lg transition">
+
+              Cancel
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+
+
+      <!-- Categories List Table -->
+
+      <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Category List</h2>
+
+        <div class="overflow-x-auto">
+
+          <table class="w-full text-left border-collapse">
+
+            <thead>
+
+              <tr class="border-b text-xs uppercase text-gray-400">
+
+                <th class="py-3 px-2">ID</th>
+
+                <th class="py-3 px-2">Category Name</th>
+
+                <th class="py-3 px-2 text-right">Actions</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="category-list" class="divide-y divide-gray-100 text-sm">
+
+              <tr>
+
+                <td colspan="3" class="py-6 text-center text-gray-400">Loading categories...</td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+  </div>
+
+
+
+  <script>
+
+    const API_BASE = "http://127.0.0.1:8000";
+
+    let categoriesCache = [];
+
+    let productsCache = [];
+
+
+
+    document.addEventListener("DOMContentLoaded", initApp);
+
+
+
+    async function initApp() {
+
+      await fetchCategories();
+
+      await fetchProducts();
+
+    }
+
+
+
+    function switchTab(tab) {
+
+      const pSection = document.getElementById("products-section");
+
+      const cSection = document.getElementById("categories-section");
+
+      const pBtn = document.getElementById("tab-products-btn");
+
+      const cBtn = document.getElementById("tab-categories-btn");
+
+
+
+      if (tab === 'products') {
+
+        pSection.classList.remove("hidden");
+
+        cSection.classList.add("hidden");
+
+        pBtn.className = "px-4 py-2 border-b-2 border-indigo-600 font-semibold text-indigo-600";
+
+        cBtn.className = "px-4 py-2 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700";
+
+      } else {
+
+        pSection.classList.add("hidden");
+
+        cSection.classList.remove("hidden");
+
+        cBtn.className = "px-4 py-2 border-b-2 border-indigo-600 font-semibold text-indigo-600";
+
+        pBtn.className = "px-4 py-2 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700";
+
+      }
+
+    }
+
+
+
+    // --- CATEGORY FUNCTIONS ---
+
+
+
+    async function fetchCategories() {
+
+      try {
+
+        const res = await fetch(`${API_BASE}/categories`);
+
+        categoriesCache = await res.json();
+
+        renderCategoryDropdowns();
+
+        renderCategoryTable();
+
+      } catch (err) {
+
+        document.getElementById("category-list").innerHTML = `
+
+          <tr><td colspan="3" class="py-6 text-center text-red-500">Failed to load categories. Ensure FastAPI is running.</td></tr>
+
+        `;
+
+      }
+
+    }
+
+
+
+    function renderCategoryDropdowns() {
+
+      // 1. Form Category Selector
+
+      const formSelect = document.getElementById("product-category");
+
+      formSelect.innerHTML = `<option value="" disabled selected>Select a Category...</option>`;
+
+      // 2. Filter Category Selector
+
+      const filterSelect = document.getElementById("filter-category");
+
+      const currentFilterVal = filterSelect.value;
+
+      filterSelect.innerHTML = `<option value="ALL">All Categories</option>`;
+
+
+
+      categoriesCache.forEach(c => {
+
+        // Option for Form
+
+        const formOpt = document.createElement("option");
+
+        formOpt.value = c.id;
+
+        formOpt.textContent = c.name;
+
+        formSelect.appendChild(formOpt);
+
+
+
+        // Option for Filter
+
+        const filterOpt = document.createElement("option");
+
+        filterOpt.value = c.id;
+
+        filterOpt.textContent = c.name;
+
+        filterSelect.appendChild(filterOpt);
+
+      });
+
+
+
+      filterSelect.value = currentFilterVal || "ALL";
+
+    }
+
+
+
+    function renderCategoryTable() {
+
+      const tbody = document.getElementById("category-list");
+
+      if (!Array.isArray(categoriesCache) || categoriesCache.length === 0) {
+
+        tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-gray-400">No categories found. Add one on the left!</td></tr>`;
+
+        return;
+
+      }
+
+
+
+      tbody.innerHTML = categoriesCache.map(c => `
+
+        <tr class="hover:bg-gray-50 transition">
+
+          <td class="py-3 px-2 font-mono text-gray-400">#${c.id}</td>
+
+          <td class="py-3 px-2 font-medium text-gray-800">${escapeHtml(c.name)}</td>
+
+          <td class="py-3 px-2 text-right space-x-2">
+
+            <button onclick='startCategoryEdit(${JSON.stringify(c)})' class="text-indigo-600 hover:text-indigo-900 font-medium text-xs">Edit</button>
+
+            <button onclick="deleteCategory(${c.id})" class="text-red-500 hover:text-red-700 font-medium text-xs">Delete</button>
+
+          </td>
+
+        </tr>
+
+      `).join("");
+
+    }
+
+
+
+    async function handleCategorySubmit(e) {
+
+      e.preventDefault();
+
+      const id = document.getElementById("category-id").value;
+
+      const payload = { name: document.getElementById("category-name").value };
+
+
+
+      const isEdit = Boolean(id);
+
+      const url = isEdit ? `${API_BASE}/categories/${id}` : `${API_BASE}/categories`;
+
+      const method = isEdit ? "PUT" : "POST";
+
+
+
+      await fetch(url, {
+
+        method: method,
+
+        headers: { "Content-Type": "application/json" },
+
+        body: JSON.stringify(payload)
+
+      });
+
+
+
+      resetCategoryForm();
+
+      fetchCategories();
+
+    }
+
+
+
+    function startCategoryEdit(category) {
+
+      document.getElementById("category-form-title").innerText = "Edit Category";
+
+      document.getElementById("category-id").value = category.id;
+
+      document.getElementById("category-name").value = category.name;
+
+
+
+      document.getElementById("category-submit-btn").innerText = "Update Category";
+
+      document.getElementById("category-cancel-btn").classList.remove("hidden");
+
+    }
+
+
+
+    function resetCategoryForm() {
+
+      document.getElementById("category-form-title").innerText = "Add New Category";
+
+      document.getElementById("category-id").value = "";
+
+      document.getElementById("category-form").reset();
+
+      document.getElementById("category-submit-btn").innerText = "Save Category";
+
+      document.getElementById("category-cancel-btn").classList.add("hidden");
+
+    }
+
+
+
+    async function deleteCategory(id) {
+
+      if (!confirm("Are you sure? Products assigned to this category may be affected.")) return;
+
+      await fetch(`${API_BASE}/categories/${id}`, { method: "DELETE" });
+
+      fetchCategories();
+
+    }
+
+
+
+    // --- PRODUCT & FILTER FUNCTIONS ---
+
+
+
+    async function fetchProducts() {
+
+      try {
+
+        const res = await fetch(`${API_BASE}/products`);
+
+        productsCache = await res.json();
+
+        applyFilters();
+
+      } catch (err) {
+
+        document.getElementById("product-list").innerHTML = `
+
+          <tr><td colspan="6" class="py-6 text-center text-red-500">Failed to load products.</td></tr>
+
+        `;
+
+      }
+
+    }
+
+
+
+    function applyFilters() {
+
+      const searchQuery = document.getElementById("search-input").value.toLowerCase().trim();
+
+      const selectedCategory = document.getElementById("filter-category").value;
+
+
+
+      const filtered = productsCache.filter(product => {
+
+        const matchesSearch = product.name.toLowerCase().includes(searchQuery);
+
+        const matchesCategory = selectedCategory === "ALL" || product.category_id == selectedCategory;
+
+        return matchesSearch && matchesCategory;
+
+      });
+
+
+
+      renderProductTable(filtered);
+
+    }
+
+
+
+    function renderProductTable(products) {
+
+      const tbody = document.getElementById("product-list");
+
+      if (!Array.isArray(products) || products.length === 0) {
+
+        tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-gray-400">No products match your criteria.</td></tr>`;
+
+        return;
+
+      }
+
+
+
+      tbody.innerHTML = products.map(p => {
+
+        const categoryObj = categoriesCache.find(c => c.id === p.category_id);
+
+        const categoryName = categoryObj ? categoryObj.name : `ID: ${p.category_id}`;
+
+
+
+        return `
+
+          <tr class="hover:bg-gray-50 transition">
+
+            <td class="py-3 px-2 font-mono text-gray-400">#${p.id}</td>
+
+            <td class="py-3 px-2">
+
+              <div class="font-medium text-gray-900">${escapeHtml(p.name)}</div>
+
+              <div class="text-xs text-gray-400">${escapeHtml(p.description)}</div>
+
+            </td>
+
+            <td class="py-3 px-2">
+
+              <span class="px-2 py-1 text-xs rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200">
+
+                ${escapeHtml(categoryName)}
+
+              </span>
+
+            </td>
+
+            <td class="py-3 px-2 font-medium text-gray-700">$${p.price}</td>
+
+            <td class="py-3 px-2">
+
+              <span class="px-2 py-1 text-xs rounded-full ${p.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+
+                ${p.stock} in stock
+
+              </span>
+
+            </td>
+
+            <td class="py-3 px-2 text-right space-x-2">
+
+              <button onclick='startProductEdit(${JSON.stringify(p)})' class="text-indigo-600 hover:text-indigo-900 font-medium text-xs">Edit</button>
+
+              <button onclick="deleteProduct(${p.id})" class="text-red-500 hover:text-red-700 font-medium text-xs">Delete</button>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }).join("");
+
+    }
+
+
+
+    async function handleProductSubmit(e) {
+
+      e.preventDefault();
+
+      const id = document.getElementById("product-id").value;
+
+      const payload = {
+
+        name: document.getElementById("product-name").value,
+
+        description: document.getElementById("product-description").value,
+
+        price: parseFloat(document.getElementById("product-price").value),
+
+        stock: parseInt(document.getElementById("product-stock").value),
+
+        category_id: parseInt(document.getElementById("product-category").value)
+
+      };
+
+
+
+      const isEdit = Boolean(id);
+
+      const url = isEdit ? `${API_BASE}/products/${id}` : `${API_BASE}/products`;
+
+      const method = isEdit ? "PUT" : "POST";
+
+
+
+      const res = await fetch(url, {
+
+        method: method,
+
+        headers: { "Content-Type": "application/json" },
+
+        body: JSON.stringify(payload)
+
+      });
+
+
+
+      const data = await res.json();
+
+      if (data.message && data.message.includes("category does not exist")) {
+
+        alert("Selected category does not exist!");
+
+        return;
+
+      }
+
+
+
+      resetProductForm();
+
+      fetchProducts();
+
+    }
+
+
+
+    function startProductEdit(product) {
+
+      document.getElementById("product-form-title").innerText = "Edit Product";
+
+      document.getElementById("product-id").value = product.id;
+
+      document.getElementById("product-name").value = product.name;
+
+      document.getElementById("product-description").value = product.description;
+
+      document.getElementById("product-price").value = product.price;
+
+      document.getElementById("product-stock").value = product.stock;
+
+      document.getElementById("product-category").value = product.category_id;
+
+
+
+      document.getElementById("product-submit-btn").innerText = "Update Product";
+
+      document.getElementById("product-cancel-btn").classList.remove("hidden");
+
+    }
+
+
+
+    function resetProductForm() {
+
+      document.getElementById("product-form-title").innerText = "Add New Product";
+
+      document.getElementById("product-id").value = "";
+
+      document.getElementById("product-form").reset();
+
+      document.getElementById("product-submit-btn").innerText = "Save Product";
+
+      document.getElementById("product-cancel-btn").classList.add("hidden");
+
+    }
+
+
+
+    async function deleteProduct(id) {
+
+      if (!confirm("Are you sure you want to delete this product?")) return;
+
+      await fetch(`${API_BASE}/products/${id}`, { method: "DELETE" });
+
+      fetchProducts();
+
+    }
+
+
+
+    function escapeHtml(str) {
+
+      return (str || "").replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
+
+    }
+
+  </script>
+
+</body>
+
+</html>
